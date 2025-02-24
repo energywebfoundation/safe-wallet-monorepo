@@ -59,7 +59,7 @@ jobs:
 
       - name: Build
         shell: bash
-        run: yarn workspace @safe-global/web build
+        run: yarn workspace @safe-global/web build --no-lint
         env:
           NEXT_DISABLE_ESLINT: true
           NEXT_DISABLE_TYPE_CHECKS: true
