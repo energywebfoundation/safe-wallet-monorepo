@@ -105,7 +105,7 @@ jobs:
           aws s3 rm s3://${{ secrets.BUCKET_NAME }} --recursive
       - name: Upload to bucket
         run: |
-          aws s3 cp out s3://${{ secrets.BUCKET_NAME }} --recursive
+          aws s3 cp ./apps/web/out s3://${{ secrets.BUCKET_NAME }} --recursive
           # Upload all HTML files again but w/o an extention so that URLs like /welcome open the right page
           for file in $(find . -name '*.html' | sed 's|^\./||'); do
               aws s3 cp ${file%} s3://${{ secrets.BUCKET_NAME }}/${file%.*} --content-type 'text/html'
