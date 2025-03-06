@@ -8,6 +8,7 @@ on:
 
 jobs:
   CLAAssistant:
+    if: false # Disable the job
     runs-on: ubuntu-latest
     steps:
       - name: 'CLA Assistant'
