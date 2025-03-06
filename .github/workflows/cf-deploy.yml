@@ -66,8 +66,8 @@ jobs:
           # Latest supported safe version, used for upgrade prompts
           NEXT_PUBLIC_SAFE_VERSION: 1.4.1
           # Gateway URL
-          NEXT_PUBLIC_GATEWAY_URL_PRODUCTION:
-          NEXT_PUBLIC_GATEWAY_URL_STAGING: https://safe-sandbox-test.energyweb.org/cgw
+          NEXT_PUBLIC_GATEWAY_URL_PRODUCTION: https://safe-sandbox-test.energyweb.org/cgw
+          NEXT_PUBLIC_GATEWAY_URL_STAGING:
           # Flag to switch to the production environment (redirect urls, gateway url, etc)
           NEXT_PUBLIC_IS_PRODUCTION: true
           # WalletConnect
