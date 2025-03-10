@@ -186,7 +186,6 @@ export const CookieAndTermBanner = ({
 }
 
 const CookieBannerPopup = (): ReactElement | null => {
-  const cookiePopup = useAppSelector(selectCookieBanner)
   const dispatch = useAppDispatch()
 
   const hasAccepted = useAppSelector(hasAcceptedTerms)

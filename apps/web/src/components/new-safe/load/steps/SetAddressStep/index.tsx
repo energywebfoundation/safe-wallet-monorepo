@@ -1,16 +1,7 @@
 import type { StepRenderProps } from '@/components/new-safe/CardStepper/useCardStepper'
 import type { LoadSafeFormData } from '@/components/new-safe/load'
 import { FormProvider, useForm } from 'react-hook-form'
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Divider,
-  Grid,
-  InputAdornment,
-  SvgIcon,
-  Tooltip,
-} from '@mui/material'
+import { Box, Button, CircularProgress, Divider, Grid, InputAdornment, SvgIcon, Tooltip } from '@mui/material'
 import layoutCss from '@/components/new-safe/create/styles.module.css'
 import NameInput from '@/components/common/NameInput'
 import InfoIcon from '@/public/images/notifications/info.svg'
