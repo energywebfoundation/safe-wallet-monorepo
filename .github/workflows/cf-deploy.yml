@@ -1,0 +1,128 @@
+name: Deploy to Cloudfront's bucket
+
+on:
+  push:
+    branches:
+      [
+        'v1.51.0-branch'
+      ]
+jobs:
+  cancel-previous:
+    name: 'Cancel Previous Runs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
+  env_name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get GHA environment name
+        id: env_name
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+          if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+            echo "::set-output name=env_name::dev"
+            echo "::set-output name=build_script::'yarn build && yarn export'"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "::set-output name=env_name::prod"
+            echo "::set-output name=build_script::yarn build && yarn export"
+          elif [ "${{ github.ref }}" = "refs/heads/v1.51.0-branch" ]; then
+            echo "::set-output name=env_name::sandbox"
+          fi
+      - name: Use specified environment secrets from previous step
+        run: |
+          echo "Environment secrets set name ${{ steps.env_name.outputs.env_name }}"
+          echo "Environment build script ${{ steps.env_name.outputs.build_script }}"
+    outputs:
+      env_name: ${{ steps.env_name.outputs.env_name }}
+      env_file: ${{ steps.env_name.outputs.env_file }}
+      build_script: ${{ steps.env_name.outputs.build_script }}
+  deploy:
+    environment:
+      name: ${{ needs.env_name.outputs.env_name }}
+    needs: [cancel-previous, env_name]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/yarn
+
+      - name: Restore Next.js Build Cache & Cypress cache
+        id: restore-nc
+        uses: ./.github/actions/cache-deps
+        with:
+          mode: restore-nc
+
+      - name: Build
+        shell: bash
+        run: yarn workspace @safe-global/web build
+        env:
+          # NEXT_DISABLE_ESLINT: true
+          # NEXT_DISABLE_TYPE_CHECKS: true
+          # Latest supported safe version, used for upgrade prompts
+          NEXT_PUBLIC_SAFE_VERSION: 1.4.1
+          # Gateway URL
+          NEXT_PUBLIC_GATEWAY_URL_PRODUCTION: https://safe-sandbox-test.energyweb.org/cgw
+          NEXT_PUBLIC_GATEWAY_URL_STAGING:
+          # Flag to switch to the production environment (redirect urls, gateway url, etc)
+          NEXT_PUBLIC_IS_PRODUCTION: true
+          # WalletConnect
+          NEXT_PUBLIC_WC_PROJECT_ID:
+          # Blockaid
+          NEXT_PUBLIC_BLOCKAID_CLIENT_ID:
+          NEXT_PUBLIC_INFURA_TOKEN:
+          # infura token used by Safe Apps
+          NEXT_PUBLIC_SAFE_APPS_INFURA_TOKEN:
+          # Transaction simulation
+          NEXT_PUBLIC_TENDERLY_SIMULATE_ENDPOINT_URL:
+          NEXT_PUBLIC_TENDERLY_PROJECT_NAME:
+          NEXT_PUBLIC_TENDERLY_ORG_NAME:
+          ### Optional variables ###
+          # These variables are required only if you require a certain feature in the interface (e.g. Portis wallet)
+          # Or overwrite the fallback values (set a different WalletConnect bridge)
+          # Access keys
+          NEXT_PUBLIC_SENTRY_DSN:
+          # Beamer
+          NEXT_PUBLIC_BEAMER_ID:
+          # Default chain IDs for testnet and mainnet
+          NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID:
+          NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID:
+          # Firebase Cloud Messaging
+          NEXT_PUBLIC_FIREBASE_OPTIONS_PRODUCTION:
+          NEXT_PUBLIC_FIREBASE_VAPID_KEY_PRODUCTION:
+          NEXT_PUBLIC_FIREBASE_OPTIONS_STAGING:
+          NEXT_PUBLIC_FIREBASE_VAPID_KEY_STAGING:
+
+          # Cypress wallet private keys
+          CYPRESS_WALLET_CREDENTIALS:
+          # [optional] Beamer keys for e2e tests
+          BEAMER_DATA_E2E:
+
+      - name: Save Next.js Build Cache & Cypress cache
+        if: steps.restore-nc.outputs.cache-hit-nc != 'true'
+        uses: ./.github/actions/cache-deps
+        with:
+          mode: save-nc
+          key: ${{ steps.restore-nc.outputs.computed-cache-key-nc }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Clear bucket
+        run: |
+          aws s3 rm s3://${{ secrets.BUCKET_NAME }} --recursive
+      - name: Upload to bucket
+        run: |
+          aws s3 cp ./apps/web/out s3://${{ secrets.BUCKET_NAME }} --recursive
+          # Upload all HTML files again but w/o an extention so that URLs like /welcome open the right page
+          for file in $(find . -name '*.html' | sed 's|^\./||'); do
+              aws s3 cp ${file%} s3://${{ secrets.BUCKET_NAME }}/${file%.*} --content-type 'text/html'
+          done
+      - name: Invalidate CloudFront # cloudfront caches s3 content so after each deployment, it needs to be cleared.
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_ID }} --paths "/*"
