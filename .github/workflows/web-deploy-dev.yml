@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: false # Disable the job
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

@@ -6,6 +6,7 @@ on:
 
 jobs:
   release:
+    if: false # Disable the job
     permissions:
       id-token: write
 
