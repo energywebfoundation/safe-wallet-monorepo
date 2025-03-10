@@ -11,11 +11,7 @@ import MUILink from '@mui/material/Link'
 import { HELP_CENTER_URL } from '@/config/constants'
 import { useIsOfficialHost } from '@/hooks/useIsOfficialHost'
 
-const footerPages = [
-  AppRoutes.welcome.index,
-  AppRoutes.settings.index,
-  AppRoutes.licenses,
-]
+const footerPages = [AppRoutes.welcome.index, AppRoutes.settings.index, AppRoutes.licenses]
 
 const FooterLink = ({ children, href }: { children: ReactNode; href: string }): ReactElement => {
   return href ? (

@@ -13,7 +13,7 @@ import {
   saveCookieAndTermConsent,
   hasAcceptedTerms,
 } from '@/store/cookiesAndTermsSlice'
-import { selectCookieBanner, openCookieBanner, closeCookieBanner } from '@/store/popupSlice'
+import { openCookieBanner, closeCookieBanner } from '@/store/popupSlice'
 
 import css from './styles.module.css'
 import { AppRoutes } from '@/config/routes'
