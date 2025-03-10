@@ -6,6 +6,8 @@ on:
       [
         'v1.51.0-branch'
       ]
+  workflow_dispatch:  # This keeps the manual trigger but without requiring input
+
 jobs:
   cancel-previous:
     name: 'Cancel Previous Runs'
