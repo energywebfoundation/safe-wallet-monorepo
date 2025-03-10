@@ -59,10 +59,10 @@ jobs:
 
       - name: Build
         shell: bash
-        run: yarn workspace @safe-global/web build --no-lint
+        run: yarn workspace @safe-global/web build
         env:
-          NEXT_DISABLE_ESLINT: true
-          NEXT_DISABLE_TYPE_CHECKS: true
+          # NEXT_DISABLE_ESLINT: true
+          # NEXT_DISABLE_TYPE_CHECKS: true
           # Latest supported safe version, used for upgrade prompts
           NEXT_PUBLIC_SAFE_VERSION: 1.4.1
           # Gateway URL
