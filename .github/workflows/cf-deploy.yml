@@ -8,6 +8,7 @@ on:
         'main',
         'feature/ewf-changes'
       ]
+  workflow_dispatch:
 jobs:
   cancel-previous:
     name: 'Cancel Previous Runs'
