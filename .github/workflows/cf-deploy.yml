@@ -72,7 +72,7 @@ jobs:
           # Flag to switch to the production environment (redirect urls, gateway url, etc)
           NEXT_PUBLIC_IS_PRODUCTION: true
           # WalletConnect
-          NEXT_PUBLIC_WC_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_WC_PROJECT_ID }}
+          NEXT_PUBLIC_WC_PROJECT_ID:
           # Blockaid
           NEXT_PUBLIC_BLOCKAID_CLIENT_ID:
           NEXT_PUBLIC_INFURA_TOKEN:
