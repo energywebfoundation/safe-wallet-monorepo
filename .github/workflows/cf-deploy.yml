@@ -97,6 +97,9 @@ jobs:
           NEXT_PUBLIC_FIREBASE_VAPID_KEY_PRODUCTION:
           NEXT_PUBLIC_FIREBASE_OPTIONS_STAGING:
           NEXT_PUBLIC_FIREBASE_VAPID_KEY_STAGING:
+          NEXT_PUBLIC_IS_OFFICIAL_HOST: false
+          NEXT_PUBLIC_BRAND_LOGO: https://cdn.prod.website-files.com/6791dab5218eed54a4cbd546/67924210791bb9083f457540_EW-Logo.svg
+          NEXT_PUBLIC_BRAND_NAME: EnergyWeb
 
           # Cypress wallet private keys
           CYPRESS_WALLET_CREDENTIALS:
