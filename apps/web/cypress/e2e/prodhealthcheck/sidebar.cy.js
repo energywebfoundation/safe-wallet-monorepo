@@ -21,6 +21,7 @@ describe('[PROD] Sidebar tests', () => {
   })
 
   it('Verify current safe details', () => {
+    wallet.connectSigner(signer)
     sideBar.verifySafeHeaderDetails(sideBar.testSafeHeaderDetails)
   })
 
@@ -35,7 +36,8 @@ describe('[PROD] Sidebar tests', () => {
     sideBar.verifyNewTxBtnStatus(constants.enabledStates.enabled)
   })
 
-  it('Verify New Transaction button disabled for non-owners', () => {
-    main.verifyElementsCount(navigation.newTxBtn, 0)
+  // Re-enable when the new implementation is released
+  it.skip('Verify New Transaction button disabled for non-owners', () => {
+    sideBar.verifyNewTxBtnStatus(constants.enabledStates.disabled)
   })
 })
