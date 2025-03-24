@@ -145,12 +145,6 @@ jobs:
           wait
           cd -
 
-      - name: Upload archive and checksum
-        run: |
-          aws s3 cp "$ARCHIVE_NAME".tar.gz s3://${{ secrets.BUCKET_NAME }}/releases/${{ github.sha }}/
-          aws s3 cp "$ARCHIVE_NAME"-sha256-checksum.txt s3://${{ secrets.BUCKET_NAME }}/releases/${{ github.sha }}/
-        working-directory: apps/web
-
       - name: Invalidate CloudFront # cloudfront caches s3 content so after each deployment, it needs to be cleared.
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_ID }} --paths "/*"
