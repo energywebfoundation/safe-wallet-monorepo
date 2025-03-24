@@ -60,14 +60,6 @@ jobs:
         with:
           mode: restore-nc
 
-      - name: Create archive
-        run: tar -czf "$ARCHIVE_NAME".tar.gz out
-        working-directory: apps/web
-
-      - name: Create checksum
-        run: sha256sum "$ARCHIVE_NAME".tar.gz > ${{ env.ARCHIVE_NAME }}-sha256-checksum.txt
-        working-directory: apps/web
-
       - name: Build
         shell: bash
         run: yarn workspace @safe-global/web build
