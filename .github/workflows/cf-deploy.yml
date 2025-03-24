@@ -20,6 +20,8 @@ jobs:
           access_token: ${{ github.token }}
   env_name:
     runs-on: ubuntu-latest
+    env:
+      ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}
     steps:
       - name: Get GHA environment name
         id: env_name
@@ -49,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      - uses: ./.github/actions/corepack
       - uses: ./.github/actions/yarn
 
       - name: Restore Next.js Build Cache & Cypress cache
@@ -57,6 +59,14 @@ jobs:
         uses: ./.github/actions/cache-deps
         with:
           mode: restore-nc
+
+      - name: Create archive
+        run: tar -czf "$ARCHIVE_NAME".tar.gz out
+        working-directory: apps/web
+
+      - name: Create checksum
+        run: sha256sum "$ARCHIVE_NAME".tar.gz > ${{ env.ARCHIVE_NAME }}-sha256-checksum.txt
+        working-directory: apps/web
 
       - name: Build
         shell: bash
@@ -134,6 +144,12 @@ jobs:
           done
           wait
           cd -
+
+      - name: Upload archive and checksum
+        run: |
+          aws s3 cp "$ARCHIVE_NAME".tar.gz s3://${{ secrets.BUCKET_NAME }}/releases/${{ github.sha }}/
+          aws s3 cp "$ARCHIVE_NAME"-sha256-checksum.txt s3://${{ secrets.BUCKET_NAME }}/releases/${{ github.sha }}/
+        working-directory: apps/web
 
       - name: Invalidate CloudFront # cloudfront caches s3 content so after each deployment, it needs to be cleared.
         run: |
