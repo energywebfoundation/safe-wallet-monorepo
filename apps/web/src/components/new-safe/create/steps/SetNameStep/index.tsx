@@ -9,8 +9,6 @@ import layoutCss from '@/components/new-safe/create/styles.module.css'
 import NameInput from '@/components/common/NameInput'
 import { CREATE_SAFE_EVENTS, trackEvent } from '@/services/analytics'
 import { AppRoutes } from '@/config/routes'
-import MUILink from '@mui/material/Link'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import NoWalletConnectedWarning from '../../NoWalletConnectedWarning'
 import { type SafeVersion } from '@safe-global/safe-core-sdk-types'
@@ -128,28 +126,17 @@ function SetNameStep({
                 }}
               />
             </Grid>
-
-            <Grid xs={12} item>
-              <Typography variant="h5" fontWeight={700} display="inline-flex" alignItems="center" gap={1} mt={2}>
-                Select Networks
-              </Typography>
-              <Typography variant="body2" mb={2}>
-                Choose which networks you want your account to be active on. You can add more networks later.{' '}
-              </Typography>
-              <NetworkMultiSelector isAdvancedFlow={isAdvancedFlow} name={SetNameStepFields.networks} />
-            </Grid>
           </Grid>
-          <Typography variant="body2" mt={2}>
-            By continuing, you agree to our{' '}
-            <Link href={AppRoutes.terms} passHref legacyBehavior>
-              <MUILink>terms of use</MUILink>
-            </Link>{' '}
-            and{' '}
-            <Link href={AppRoutes.privacy} passHref legacyBehavior>
-              <MUILink>privacy policy</MUILink>
-            </Link>
-            .
-          </Typography>
+
+          <Grid xs={12} item>
+            <Typography variant="h5" fontWeight={700} display="inline-flex" alignItems="center" gap={1} mt={2}>
+              Select Networks
+            </Typography>
+            <Typography variant="body2" mb={2}>
+              Choose which networks you want your account to be active on. You can add more networks later.{' '}
+            </Typography>
+            <NetworkMultiSelector isAdvancedFlow={isAdvancedFlow} name={SetNameStepFields.networks} />
+          </Grid>
 
           <NoWalletConnectedWarning />
         </Box>

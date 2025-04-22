@@ -129,8 +129,6 @@ const SafeWalletApp = ({
             <Component {...pageProps} key={safeKey} />
           </PageLayout>
 
-          <CookieAndTermBanner />
-
           <OutreachPopup />
 
           <Notifications />
