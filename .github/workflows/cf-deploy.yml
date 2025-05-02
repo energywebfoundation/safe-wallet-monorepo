@@ -4,8 +4,6 @@ on:
   push:
     branches:
       [
-        'dev',
-        'main',
         'feature/ewf-changes'
       ]
   workflow_dispatch:
