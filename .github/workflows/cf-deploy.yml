@@ -70,7 +70,7 @@ jobs:
           NEXT_PUBLIC_GATEWAY_URL_PRODUCTION: ${{ secrets.NEXT_PUBLIC_GATEWAY_URL_PRODUCTION || 'https://safe-sandbox-test.energyweb.org/cgw' }}
           NEXT_PUBLIC_GATEWAY_URL_STAGING: ${{ secrets.NEXT_PUBLIC_GATEWAY_URL_PRODUCTION || 'https://safe-sandbox-test.energyweb.org/cgw' }}
           # Flag to switch to the production environment (redirect urls, gateway url, etc)
-          NEXT_PUBLIC_IS_PRODUCTION: true
+          NEXT_PUBLIC_IS_PRODUCTION: false
           # WalletConnect
           NEXT_PUBLIC_WC_PROJECT_ID:
           # Blockaid
