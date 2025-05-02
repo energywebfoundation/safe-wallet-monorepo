@@ -25,14 +25,17 @@ jobs:
         id: env_name
         run: |
           echo "Running on branch ${{ github.ref }}"
+
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            echo "::set-output name=env_name::dev"
-            echo "::set-output name=build_script::'yarn build && yarn export'"
+            echo "env_name=dev" >> $GITHUB_OUTPUT
+            echo "build_script=yarn build && yarn export" >> $GITHUB_OUTPUT
+
           elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "::set-output name=env_name::prod"
-            echo "::set-output name=build_script::yarn build && yarn export"
+            echo "env_name=prod" >> $GITHUB_OUTPUT
+            echo "build_script=yarn build && yarn export" >> $GITHUB_OUTPUT
+
           elif [ "${{ github.ref }}" = "refs/heads/feature/ewf-changes" ]; then
-            echo "::set-output name=env_name::sandbox"
+            echo "env_name=sandbox" >> $GITHUB_OUTPUT
           fi
       - name: Use specified environment secrets from previous step
         run: |
