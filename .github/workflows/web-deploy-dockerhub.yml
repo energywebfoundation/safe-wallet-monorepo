@@ -24,7 +24,8 @@ on:
 jobs:
   dockerhub-push:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || (github.event_name == 'release' && github.event.action == 'released')
+    if: false # Disable the job
+    # if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || (github.event_name == 'release' && github.event.action == 'released')
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
