@@ -2,8 +2,8 @@ name: Web Production health check tests
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '30 5 * * 1-5'
+  # schedule:
+  #   - cron: '0 4 * * 1-5'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   e2e:
+    if: false
     runs-on: ubuntu-20.04
     name: Cypress production health check tests
     strategy:

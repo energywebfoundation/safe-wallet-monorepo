@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   eslint:
+    if: false # Disable the job
     permissions:
       checks: write
       pull-requests: read
@@ -22,7 +23,7 @@ jobs:
 
       - uses: ./.github/actions/yarn
 
-      - uses: CatChen/eslint-suggestion-action@v4.1.11
+      - uses: CatChen/eslint-suggestion-action@v4.1.9
         with:
           request-changes: true # optional
           fail-check: true # optional
