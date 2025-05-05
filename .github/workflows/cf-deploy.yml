@@ -34,7 +34,7 @@ jobs:
             echo "env_name=prod" >> $GITHUB_OUTPUT
             echo "build_script=yarn build && yarn export" >> $GITHUB_OUTPUT
 
-          elif [ "${{ github.ref }}" = "refs/heads/feature/v1.53.0-ewf" ]; then
+          elif [ "${{ github.ref }}" = "refs/heads/v1.53.0-ewf" ]; then
             echo "env_name=sandbox" >> $GITHUB_OUTPUT
           fi
       - name: Use specified environment secrets from previous step
