@@ -1,0 +1,113 @@
+name: Deploy to Cloudfront's bucket
+
+on:
+  push:
+    branches:
+      [
+        'v1.53.0-ewf'
+      ]
+  workflow_dispatch:
+jobs:
+  cancel-previous:
+    name: 'Cancel Previous Runs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
+  env_name:
+    runs-on: ubuntu-latest
+    env:
+      ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}
+    steps:
+      - name: Get GHA environment name
+        id: env_name
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+
+          if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+            echo "env_name=dev" >> $GITHUB_OUTPUT
+            echo "build_script=yarn build && yarn export" >> $GITHUB_OUTPUT
+
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "env_name=prod" >> $GITHUB_OUTPUT
+            echo "build_script=yarn build && yarn export" >> $GITHUB_OUTPUT
+
+          elif [ "${{ github.ref }}" = "refs/heads/feature/v1.53.0-ewf" ]; then
+            echo "env_name=sandbox" >> $GITHUB_OUTPUT
+          fi
+      - name: Use specified environment secrets from previous step
+        run: |
+          echo "Environment secrets set name ${{ steps.env_name.outputs.env_name }}"
+          echo "Environment build script ${{ steps.env_name.outputs.build_script }}"
+    outputs:
+      env_name: ${{ steps.env_name.outputs.env_name }}
+      env_file: ${{ steps.env_name.outputs.env_file }}
+      build_script: ${{ steps.env_name.outputs.build_script }}
+  deploy:
+    environment:
+      name: ${{ needs.env_name.outputs.env_name }}
+    needs: [cancel-previous, env_name]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/corepack
+      - uses: ./.github/actions/yarn
+
+      - name: Restore Next.js Build Cache & Cypress cache
+        id: restore-nc
+        uses: ./.github/actions/cache-deps
+        with:
+          mode: restore-nc
+
+      - name: Build
+        shell: bash
+        run: yarn workspace @safe-global/web build
+        env:
+          # Only necessary env vars for ewf
+          # Latest supported safe version, used for upgrade prompts
+          NEXT_PUBLIC_SAFE_VERSION: ${{ secrets.NEXT_PUBLIC_SAFE_VERSION || '1.3.0' }}
+          # Gateway URL
+          NEXT_PUBLIC_GATEWAY_URL_PRODUCTION: ${{ secrets.NEXT_PUBLIC_GATEWAY_URL_PRODUCTION || 'https://safe-sandbox-test.energyweb.org/cgw' }}
+          NEXT_PUBLIC_GATEWAY_URL_STAGING: ${{ secrets.NEXT_PUBLIC_GATEWAY_URL_STAGING || 'https://safe-sandbox-test.energyweb.org/cgw' }}
+          # Flag to switch to the production environment (redirect urls, gateway url, etc)
+          NEXT_PUBLIC_IS_PRODUCTION: false
+          NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID: ${{ secrets.NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID || 73799 }}
+          NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID: ${{ secrets.NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID || 246}}
+          NEXT_PUBLIC_IS_OFFICIAL_HOST: false
+          NEXT_PUBLIC_BRAND_LOGO: ${{ secrets.NEXT_PUBLIC_BRAND_LOGO || 'https://cdn.prod.website-files.com/6791dab5218eed54a4cbd546/67924210791bb9083f457540_EW-Logo.svg' }}
+          NEXT_PUBLIC_BRAND_NAME: ${{ secrets.NEXT_PUBLIC_BRAND_NAME || 'Energy Web' }}
+
+      - name: Save Next.js Build Cache & Cypress cache
+        if: steps.restore-nc.outputs.cache-hit-nc != 'true'
+        uses: ./.github/actions/cache-deps
+        with:
+          mode: save-nc
+          key: ${{ steps.restore-nc.outputs.computed-cache-key-nc }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Clear bucket
+        run: |
+          aws s3 rm s3://${{ secrets.BUCKET_NAME }} --recursive
+      - name: Upload to bucket
+        run: |
+          set -ev
+          cd ./apps/web/out
+          # Upload the build to S3 with sync to maintain state and proper headers
+          aws s3 sync . s3://${{ secrets.BUCKET_NAME }} --cache-control "public, max-age=0, must-revalidate" --metadata-directive REPLACE --metadata '{"Content-Security-Policy":"default-src https: '\''unsafe-eval'\'' '\''unsafe-inline'\''; connect-src '\''self'\'' *; script-src '\''self'\'' '\''unsafe-inline'\'' https://www.google-analytics.com https://ssl.google-analytics.com https://*.getbeamer.com https://www.googletagmanager.com https://*.ingest.sentry.io https://sentry.io '\''unsafe-eval'\''; frame-src http: https:; style-src '\''self'\'' '\''unsafe-inline'\'' https://*.getbeamer.com https://*.googleapis.com; font-src '\''self'\'' data:; worker-src '\''self'\'' blob:; img-src * data: blob:;"}'
+          # Upload all HTML files again but w/o an extention so that URLs like /welcome open the right page
+          for file in $(find . -name '*.html' | sed 's|^\./||'); do
+              aws s3 cp ${file%} s3://${{ secrets.BUCKET_NAME }}/${file%.*} --content-type 'text/html' --cache-control "public, max-age=0, must-revalidate" --metadata-directive REPLACE --metadata '{"Content-Security-Policy":"default-src https: '\''unsafe-eval'\'' '\''unsafe-inline'\''; connect-src '\''self'\'' *; script-src '\''self'\'' '\''unsafe-inline'\'' https://www.google-analytics.com https://ssl.google-analytics.com https://*.getbeamer.com https://www.googletagmanager.com https://*.ingest.sentry.io https://sentry.io '\''unsafe-eval'\''; frame-src http: https:; style-src '\''self'\'' '\''unsafe-inline'\'' https://*.getbeamer.com https://*.googleapis.com; font-src '\''self'\'' data:; worker-src '\''self'\'' blob:; img-src * data: blob:;"}' &
+          done
+          wait
+          cd -
+
+      - name: Invalidate CloudFront # cloudfront caches s3 content so after each deployment, it needs to be cleared.
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_ID }} --paths "/*"
