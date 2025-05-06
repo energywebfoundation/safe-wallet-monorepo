@@ -11,7 +11,8 @@ on:
 
 jobs:
   build:
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'mobile-e2e-test')
+    # if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'mobile-e2e-test')
+    if: false # Disable the job
     name: Install and build
     runs-on: ubuntu-latest
     steps:

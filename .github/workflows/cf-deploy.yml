@@ -1,11 +1,6 @@
-name: Deploy to Cloudfront's bucket
+name: Deploy to Cloudfront S3 (EWF)
 
 on:
-  push:
-    branches:
-      [
-        'v1.53.0-ewf'
-      ]
   workflow_dispatch:
 jobs:
   cancel-previous:
@@ -72,7 +67,7 @@ jobs:
           NEXT_PUBLIC_GATEWAY_URL_PRODUCTION: ${{ secrets.NEXT_PUBLIC_GATEWAY_URL_PRODUCTION || 'https://safe-sandbox-test.energyweb.org/cgw' }}
           NEXT_PUBLIC_GATEWAY_URL_STAGING: ${{ secrets.NEXT_PUBLIC_GATEWAY_URL_STAGING || 'https://safe-sandbox-test.energyweb.org/cgw' }}
           # Flag to switch to the production environment (redirect urls, gateway url, etc)
-          NEXT_PUBLIC_IS_PRODUCTION: false
+          NEXT_PUBLIC_IS_PRODUCTION: true
           NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID: ${{ secrets.NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID || 73799 }}
           NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID: ${{ secrets.NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID || 246}}
           NEXT_PUBLIC_IS_OFFICIAL_HOST: false
