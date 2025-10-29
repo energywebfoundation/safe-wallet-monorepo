@@ -19,20 +19,20 @@ on:
         default: 'https://safe-svc.energyweb.org/cgw'
         description: 'Gateway URL for production'
       NEXT_PUBLIC_GATEWAY_URL_STAGING:
--        required: false
--        type: string
--        default: 'https://safe-svc.energyweb.org/cgw'
--        description: 'Gateway URL for staging'
+        required: false
+        type: string
+        default: 'https://safe-svc.energyweb.org/cgw'
+        description: 'Gateway URL for staging'
       NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID:
         required: true
         type: string
         default: '246'
         description: 'Default mainnet chain ID'
-       NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID:
--        required: false
--        type: string
--        default: '73799'
--        description: 'Default testnet chain ID'
+      NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID:
+        required: false
+        type: string
+        default: '73799'
+        description: 'Default testnet chain ID'
       NEXT_PUBLIC_BRAND_NAME:
         required: false
         type: string
