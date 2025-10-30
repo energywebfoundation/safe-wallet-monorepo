@@ -43,6 +43,11 @@ on:
         type: string
         default: 'https://cdn.prod.website-files.com/6791dab5218eed54a4cbd546/67924210791bb9083f457540_EW-Logo.svg'
         description: 'Brand logo URL'
+      NEXT_PUBLIC_STATUS_PAGE:
+        required: false
+        type: string
+        default: 'https://safe-svc.energyweb.org/txs-status'
+        description: 'Status page URL'
 jobs:
   cancel-previous:
     name: 'Cancel Previous Runs'
@@ -109,6 +114,7 @@ jobs:
           NEXT_PUBLIC_IS_OFFICIAL_HOST: false
           NEXT_PUBLIC_BRAND_LOGO: ${{ github.event.inputs.NEXT_PUBLIC_BRAND_LOGO || 'https://cdn.prod.website-files.com/6791dab5218eed54a4cbd546/67924210791bb9083f457540_EW-Logo.svg' }}
           NEXT_PUBLIC_BRAND_NAME: ${{ github.event.inputs.NEXT_PUBLIC_BRAND_NAME || 'Energy Web' }}
+          NEXT_PUBLIC_STATUS_PAGE: ${{ github.event.inputs.NEXT_PUBLIC_STATUS_PAGE || 'https://safe-svc.energyweb.org/txs-status' }}
 
       - name: Save Next.js Build Cache & Cypress cache
         if: steps.restore-nc.outputs.cache-hit-nc != 'true'

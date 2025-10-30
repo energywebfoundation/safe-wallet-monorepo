@@ -110,6 +110,9 @@ export const OFFICIAL_HOSTS = /app\.safe\.global|.+\.5afe\.dev|localhost:3000/
 export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME || (IS_OFFICIAL_HOST ? 'Safe{Wallet}' : 'Wallet fork')
 export const BRAND_LOGO = process.env.NEXT_PUBLIC_BRAND_LOGO || ''
 
+// Status page
+export const STATUS_PAGE = process.env.NEXT_PUBLIC_STATUS_PAGE || 'https://status.safe.global'
+
 // Risk mitigation (Blockaid)
 export const BLOCKAID_API = 'https://client.blockaid.io'
 export const BLOCKAID_CLIENT_ID = process.env.NEXT_PUBLIC_BLOCKAID_CLIENT_ID

@@ -5,8 +5,8 @@ import useAsync from '@/hooks/useAsync'
 import useChainId from '@/hooks/useChainId'
 import ExternalLink from '@/components/common/ExternalLink'
 import useIntervalCounter from '@/hooks/useIntervalCounter'
+import { STATUS_PAGE } from '@/config/constants'
 
-const STATUS_PAGE = 'https://status.safe.global'
 const MAX_SYNC_DELAY = 1000 * 60 * 5 // 5 minutes
 const POLL_INTERVAL = 1000 * 60 // 1 minute
 
